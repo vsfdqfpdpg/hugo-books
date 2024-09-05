@@ -1,0 +1,15 @@
+{{ define "main" }}
+    <h1>{{ .Title }}</h1>
+    <ul>
+        <!--        {{ $top_txt := split .RelPermalink "/" | last 2 }}-->
+        <!--        <li><a href="{{ .Permalink }}">{{ index $top_txt 0 | title }}</a></li>-->
+        {{ range .Pages }}
+            {{ if eq .Kind "section" }}
+                {{ $txt := split .RelPermalink "/" | last 2 }}
+                <li><a href="{{ .Permalink }}">{{ index $txt 0 | title }}</a></li>
+            {{ else }}
+                <li><a href="{{ .Permalink }}">{{ .Name }}</a></li>
+            {{ end }}
+        {{ end }}
+    </ul>
+{{ end }}

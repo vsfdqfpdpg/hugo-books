@@ -1,0 +1,125 @@
+<div class="sidebar offcanvas-lg col-md-3 col-lg-2 bg-body-tertiary p-0 vh-100">
+    <nav>
+        <ul class="flex-column nav left-nav">
+            {{ range $parent := os.ReadDir "content" }}
+                {{ $icon := (cond (eq $parent.Name $.Section) "bi-folder-minus active" "bi-folder-plus") }}
+                {{ if .IsDir }}
+                    <li class="nav-item">
+                        <a href="/{{ .Name }}" class="bi nav-link {{ $icon }}">{{ .Name }}</a>
+                        {{ $walkDir := "" }}
+                        {{ if not $.IsPage }}
+                            {{ $walkDir = printf "%s" .Name }}
+                        {{ else }}
+                            {{ $tmpDir := path.Dir $.Path }}
+                            {{ $walkDir = printf "%s" $tmpDir }}
+                        {{ end }}
+                        {{ $base := "content" }}
+                        {{ $indexSlash := printf "/%s" $parent.Name }}
+                        {{ range $key, $delimit := split $walkDir "/" }}
+                            {{ if eq . "" }}
+                                {{ continue }}
+                            {{ end }}
+                            {{ $base = printf "%s/%s" $base . }}
+                            {{ $index := replace $base "content" "" }}
+                            {{ $indexSlash := printf "/%s" $parent.Name }}
+                            {{ if and (hasPrefix $.Path $indexSlash) (lt $key 2) }}
+                                <ul>
+                                    {{ range os.ReadDir $base }}
+                                        {{ if .IsDir }}
+                                            {{ $currentIndex := printf "/%s/%s" $parent.Name .Name }}
+                                            {{ $currentIndexSlash := printf "%s/" $currentIndex }}
+                                            {{ $pathSlash := printf "%s/" $.Path }}
+                                            <li>
+                                                {{ $secondSection := printf "%s/%s" $index .Name }}
+                                                {{ $icon = (cond (hasPrefix $pathSlash $currentIndexSlash) "bi-folder-minus active" "bi-folder-plus") }}
+                                                <a href="{{ $secondSection }}"
+                                                   class="bi nav-link {{ $icon }}">{{ .Name }}</a>
+                                            </li>
+                                            {{ if hasPrefix $pathSlash $currentIndexSlash }}
+                                                {{ $currentPath := printf "%s%s" "content" $currentIndex }}
+                                                <ul>
+                                                    {{ range os.ReadDir $currentPath }}
+                                                        {{ if .IsDir }}
+                                                            {{ $thirdIndex := printf "%s/%s" $currentIndex .Name }}
+                                                            {{ $thirdIndexSlash := printf "%s/%s/" $currentIndex .Name }}
+                                                            {{ $thirdSectionPath := printf "%s/%s" $currentPath .Name }}
+                                                            <li>
+                                                            {{ $icon = (cond (hasPrefix $pathSlash $thirdIndexSlash) "bi-folder-minus active" "bi-folder-plus") }}
+                                                            <a href="{{ $currentIndex }}/{{ .Name }}"
+                                                               class="bi nav-link {{ $icon }}">{{ .Name }}</a>
+                                                            {{ range os.ReadDir $thirdSectionPath }}
+                                                                <ul>
+                                                                    {{ if .IsDir }}
+                                                                        {{ $fourthIndex := printf "%s/%s" $thirdIndex .Name }}
+                                                                        {{ $fourthIndexSlash := printf "%s/" $fourthIndex }}
+                                                                        {{ $icon = (cond (hasPrefix $pathSlash $fourthIndexSlash) "bi-folder-minus active" "bi-folder-plus") }}
+                                                                        <li>
+                                                                            <a href="{{ $thirdIndex }}/{{ .Name }}"
+                                                                               class="bi nav-link {{ $icon }}">{{ .Name }}</a>
+                                                                        </li>
+                                                                        {{ if hasPrefix $pathSlash $fourthIndexSlash }}
+                                                                            {{ $fourth := printf "%s/%s" $thirdSectionPath .Name }}
+                                                                            <ul>
+                                                                                {{ range os.ReadDir $fourth }}
+                                                                                    {{ if .IsDir }}
+                                                                                        <li>
+                                                                                            <a href="">{{ .Name }}</a>
+                                                                                        </li>
+                                                                                    {{ else }}
+                                                                                        {{ $name := replace .Name ".md" "" }}
+                                                                                        {{ $link := replace $name " " "-" }}
+                                                                                        {{ if ne $link "_index" }}
+                                                                                            {{ $link = lower $link }}
+                                                                                            {{ $link = printf "%s/%s" $fourthIndex $link }}
+                                                                                            {{ $linkActive := (cond (eq $.Path $link) "active" "") }}
+                                                                                            <li>
+                                                                                                <a href="{{ $link }}"
+                                                                                                   class="bi nav-link {{ $linkActive }} bi-filetype-md">{{ $name }}</a>
+                                                                                            </li>
+                                                                                        {{ end }}
+                                                                                    {{ end }}
+                                                                                {{ end }}
+                                                                            </ul>
+                                                                        {{ end }}
+                                                                    {{ else }}
+                                                                        {{ $name := replace .Name ".md" "" }}
+                                                                        {{ $link := replace $name " " "-" }}
+                                                                        {{ if ne $link "_index" }}
+                                                                            {{ $link = lower $link }}
+                                                                            {{ $link = printf "%s/%s" $thirdIndex $link }}
+                                                                            {{ $linkActive := (cond (eq $.Path $link) "active" "") }}
+                                                                            <li><a href="{{ $link }}"
+                                                                                   class="bi nav-link {{ $linkActive }} bi-filetype-md">{{ $name }}</a>
+                                                                            </li>
+                                                                        {{ end }}
+                                                                    {{ end }}
+                                                                </ul>
+                                                                </li>
+                                                            {{ end }}
+                                                        {{ else }}
+                                                            {{ $name := replace .Name ".md" "" }}
+                                                            {{ $link := replace $name " " "-" }}
+                                                            {{ if ne $link "_index" }}
+                                                                <li>
+                                                                    {{ $link = lower $link }}
+                                                                    {{ $link = printf "%s/%s" $currentIndex $link }}
+                                                                    {{ $linkActive := (cond (eq $.Path $link) "active" "") }}
+                                                                    <a href="{{ $link }}"
+                                                                       class="bi nav-link {{ $linkActive }} bi-filetype-md">{{ $name }}</a>
+                                                                </li>
+                                                            {{ end }}
+                                                        {{ end }}
+                                                    {{ end }}
+                                                </ul>
+                                            {{ end }}
+                                        {{ end }}
+                                    {{ end }}
+                                </ul>
+                            {{ end }}
+                        {{ end }}
+                    </li>
+                {{ end }}
+            {{ end }}
+        </ul>
+    </nav>
+</div>

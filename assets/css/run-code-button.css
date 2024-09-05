@@ -1,0 +1,17 @@
+.run-code-button {
+    font-size: 13px;
+    background-color: #ddd;
+    border-color: #ccc;
+    opacity: .8;
+    border-radius: 0 4px 0 4px;
+}
+
+.run-code-button:hover, .run-code-button:focus, .run-code-button:active, .run-code-button:active:hover {
+    color: #fff;
+    background-color: #bbb;
+    opacity: 1;
+}
+
+.tab-result {
+    display: none;
+}

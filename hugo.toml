@@ -1,0 +1,8 @@
+[module]
+    noProxy = 'none'
+    noVendor = ''
+    private = '*.*'
+    proxy = 'direct'
+    replacements = ''
+    vendorClosest = false
+    workspace = 'off'

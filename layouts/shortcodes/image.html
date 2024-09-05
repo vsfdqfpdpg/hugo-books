@@ -1,0 +1,7 @@
+{{ if .IsNamedParams }}
+    {{ $src := .Get "src" }}
+    {{ $style := resources.Get $src | fingerprint }}
+    <img src="{{ $style.Permalink }}" alt="">
+{{ else }}
+    <img src="{{ .Get 0 }}" alt="">
+{{ end }}

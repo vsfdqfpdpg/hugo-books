@@ -1,0 +1,19 @@
+{{ $style := resources.Get "css/bootstrap.min.css" | fingerprint }}
+<link rel="stylesheet" href="{{ $style.Permalink }}">
+{{ $style := resources.Get "css/bootstrap-icons.min.css" | fingerprint }}
+
+{{ $opts := dict "transpiler" "libsass" "targetPath" "css/style.css" }}
+{{ with resources.Get "sass/style.scss" | toCSS $opts | minify | fingerprint }}
+    <link rel="stylesheet" href="{{ .RelPermalink }}" integrity="{{ .Data.Integrity }}" crossorigin="anonymous">
+{{ end }}
+
+<link rel="stylesheet" href="{{ $style.Permalink }}">
+{{ $style := resources.Get "css/tabs.css" | fingerprint }}
+<link rel="stylesheet" href="{{ $style.Permalink }}">
+
+{{ if (findRE "<pre" .Content 1) }}
+    {{ $copyCss := resources.Get "css/copy-code-button.css" | minify }}
+    <link href="{{ $copyCss.RelPermalink }}" rel="stylesheet">
+    {{ $runCodeCss := resources.Get "css/run-code-button.css" | minify }}
+    <link href="{{ $runCodeCss.RelPermalink }}" rel="stylesheet">
+{{ end }}

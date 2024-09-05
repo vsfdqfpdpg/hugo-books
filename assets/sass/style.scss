@@ -1,0 +1,143 @@
+@media (min-width: 768px) {
+    .sidebar .offcanvas-lg {
+        position: fixed;
+        top: 48px;
+        overflow: scroll;
+    }
+
+    .navbar-search {
+        display: block;
+    }
+}
+
+.brand-link {
+    padding-top: 0.75rem;
+    padding-bottom: 0.75rem;
+    padding-left: 0.75rem;
+    color: white;
+    text-decoration: none;
+    background-color: rgba(0, 0, 0, .5);
+    box-shadow: inset -1px 0 0 rgba(0, 0, 0, .5);
+}
+
+.sidebar {
+    position: fixed;
+    overflow: scroll;
+    a {
+        color: #6c757d;
+        text-decoration: none;
+    }
+    ul {
+        padding-left: 1rem;
+    }
+    li {
+        list-style: none;
+    }
+}
+
+.bg-body-tertiary {
+    --bs-bg-opacity: 1;
+    background-color: rgba(var(--bs-tertiary-bg-rgb), var(--bs-bg-opacity)) !important;
+}
+
+.highlight > pre {
+    padding: 1rem !important;
+}
+
+#body .nav-tabs {
+    position: unset;
+    width: unset;
+}
+
+.tab-content > .tab-pane {
+    display: none;
+}
+
+.tab-pane {
+    padding: 3px 0px;
+}
+
+.tab-pane {
+    padding: 3px 0px;
+}
+
+.tab-content > .active {
+    display: block;
+}
+
+.nav-tabs {
+    color: #0f0f0f;
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+}
+
+.nav-tabs > li {
+    color: #0f0f0f;
+    float: left;
+}
+
+.nav-tabs > li > a {
+    display: block;
+    padding: 5px 10px;
+    font-size: 14px;
+}
+
+
+
+
+#overlay {
+    right: 0;
+    left: 0;
+    position: fixed;
+    top: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, .5);
+    z-index: 999;
+    display: none;
+}
+
+#TableOfContents > ul > li {
+    list-style: none;
+}
+
+header {
+    background: inherit;
+}
+
+.sidebar nav {
+    margin-bottom: 3rem;
+    .left-nav {
+        .nav-link {
+            color: gray;
+            padding: 0.1rem 0.5rem;
+            &.active {
+                color: blue;
+            }
+        }
+    }
+}
+
+
+blockquote {
+    background-color: rgba(102, 187, 255, .1);
+    margin: 1rem 0;
+    padding: .5rem 1rem .5rem .75rem;
+    border-inline-start: .25rem solid #e9ecef;
+    border-color: #6bf;
+    border-radius: .25rem;
+
+    > p {
+        margin: 0;
+    }
+
+    :first-child {
+        margin-top: 0;
+    }
+
+    :last-child {
+        margin-bottom: 0;
+    }
+}
+

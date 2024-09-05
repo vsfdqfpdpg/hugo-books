@@ -1,0 +1,4 @@
+{{ $jquery := resources.Get "js/jquery.min.js" | fingerprint }}
+<script src="{{ $jquery.Permalink }}" type="application/javascript"></script>
+{{ $tabs := resources.Get "js/tabs.js" | fingerprint }}
+<script src="{{ $tabs.Permalink }}" type="application/javascript"></script>

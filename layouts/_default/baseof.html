@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    {{ partial "head.html" . }}
+    <title>{{ if .IsHome }}{{ site.Title }}{{ else }}{{ printf "%s | %s" .Title site.Title }}{{ end }}</title>
+</head>
+<body>
+<header class="d-flex flex-md-nowrap p-0 shadow sticky-top">
+    <a href="/" class="col-md-3 col-lg-2 brand-link">Home</a>
+</header>
+<div class="container-fluid">
+    <div class="row">
+        {{ $rel_link := trim .Page.RelPermalink "/" }}
+        {{ $link_path := split $rel_link "/" }}
+    </div>
+    <div class="row">
+        {{ partial "sidebars/left.html" . }}
+        <main class="col-lg-10 col-md-9 offset-lg-2 offset-md-3 p-3" id="body">
+            <div id="overlay">
+                <div class="d-flex justify-content-center align-items-center vh-100">
+                    <div class="spinner-border " role="status">
+                        <span class="visually-hidden">Loading...</span>
+                    </div>
+                </div>
+            </div>
+            {{ block "main" . }}
+            {{ end }}
+        </main>
+    </div>
+</div>
+{{ partial "footer.html" . }}
+</body>
+</html>
