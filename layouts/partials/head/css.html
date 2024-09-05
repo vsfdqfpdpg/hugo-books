@@ -11,9 +11,11 @@
 {{ $style := resources.Get "css/tabs.css" | fingerprint }}
 <link rel="stylesheet" href="{{ $style.Permalink }}">
 
+{{ $copyCss := resources.Get "css/copy-code-button.css" | minify }}
+<link href="{{ $copyCss.RelPermalink }}" rel="stylesheet">
+{{ $runCodeCss := resources.Get "css/run-code-button.css" | minify }}
+<link href="{{ $runCodeCss.RelPermalink }}" rel="stylesheet">
+
 {{ if (findRE "<pre" .Content 1) }}
-    {{ $copyCss := resources.Get "css/copy-code-button.css" | minify }}
-    <link href="{{ $copyCss.RelPermalink }}" rel="stylesheet">
-    {{ $runCodeCss := resources.Get "css/run-code-button.css" | minify }}
-    <link href="{{ $runCodeCss.RelPermalink }}" rel="stylesheet">
+
 {{ end }}
