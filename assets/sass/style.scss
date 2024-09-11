@@ -141,3 +141,30 @@ blockquote {
     }
 }
 
+table {
+    width: 100%;
+    max-width: 100%;
+    margin-bottom: 1rem;
+    background-color: transparent;
+    border: 1px solid #dee2e6;
+}
+
+table thead th {
+    padding: 12px;
+    vertical-align: bottom;
+    border-bottom: 2px solid #dee2e6;
+    border-bottom: 2px solid #dee2e6;
+}
+
+th, td {
+    padding: 8px;
+    border: 1px solid #dee2e6;
+    word-break: break-all;
+    word-wrap: break-word;
+}
+th:first-child, td:first-child { white-space: nowrap; }
+thead, tfoot, tr:nth-child(even) { background: #eee; }
+
+table tbody tr:hover {
+    background-color: rgba(0, 0, 0, .075);
+}

@@ -10,7 +10,7 @@
     bottom: -1px;
 }
 #body .tab-nav-button:first-child {
-    margin-left: 0px;
+    margin-left: 0;
 }
 #body .tab-nav-button.active {
     background-color: #fff !important;
