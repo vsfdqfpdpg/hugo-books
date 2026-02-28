@@ -1,2 +1,7 @@
+{{ if hasPrefix .Destination "data:" }}
+<img src="{{ .Destination | safeURL }}" alt="{{ .Text }}">
+{{ else }}
+{{ $img := resources.Get .Destination }}
 {{ $style := resources.Get .Destination | fingerprint }}
 <img src="{{ $style.Permalink }}" alt="{{.Text}}">
+{{ end }}
