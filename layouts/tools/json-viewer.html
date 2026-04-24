@@ -1,0 +1,250 @@
+{{ define "main" }}
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+    tailwind.config = { darkMode: "class" };
+</script>
+
+<div class="min-h-screen bg-slate-50 text-slate-900 dark:bg-slate-950 dark:text-slate-100">
+    <div class="mx-auto max-w-7xl p-6">
+        <div class="mb-6 flex items-center justify-between">
+            <div>
+                <h1 class="text-3xl font-bold">JSON Viewer</h1>
+                <p class="mt-2 text-slate-500 dark:text-slate-400">
+                    Beautify JSON, expand/collapse nodes, and click nodes.
+                </p>
+            </div>
+
+            <button
+                    id="themeToggle"
+                    class="rounded-xl border border-slate-300 px-4 py-2 text-sm hover:bg-slate-100 dark:border-slate-700 dark:hover:bg-slate-800"
+            >
+                Dark Mode
+            </button>
+        </div>
+
+        <div class="grid grid-cols-1 gap-6 lg:grid-cols-2">
+            <div class="rounded-2xl bg-white p-5 shadow dark:bg-slate-900">
+                <div class="mb-3 flex items-center justify-between">
+                    <h2 class="font-semibold">Input JSON</h2>
+                    <button id="formatBtn" class="rounded-lg bg-blue-600 px-4 py-2 text-white hover:bg-blue-700">
+                        Format JSON
+                    </button>
+                </div>
+
+                <textarea
+                        id="jsonInput"
+                        class="h-[600px] w-full rounded-xl border border-slate-300 bg-slate-50 p-4 font-mono text-sm outline-none focus:ring-2 focus:ring-blue-500 dark:border-slate-700 dark:bg-slate-950"
+                        placeholder="Paste JSON here..."
+                ></textarea>
+
+                <p id="errorBox" class="mt-3 text-sm text-red-500"></p>
+            </div>
+
+            <div class="rounded-2xl bg-white p-5 shadow dark:bg-slate-900">
+                <div class="mb-3 flex items-center justify-between">
+                    <h2 class="font-semibold">JSON Tree</h2>
+
+                    <div class="space-x-2">
+                        <button id="expandAllBtn" class="rounded-lg bg-slate-200 px-3 py-2 text-sm hover:bg-slate-300 dark:bg-slate-800 dark:hover:bg-slate-700">
+                            Expand All
+                        </button>
+                        <button id="collapseAllBtn" class="rounded-lg bg-slate-200 px-3 py-2 text-sm hover:bg-slate-300 dark:bg-slate-800 dark:hover:bg-slate-700">
+                            Collapse All
+                        </button>
+                    </div>
+                </div>
+
+                <div
+                        id="jsonTree"
+                        class="h-[500px] overflow-auto rounded-xl border border-slate-300 bg-slate-50 p-4 font-mono text-sm dark:border-slate-700 dark:bg-slate-950"
+                ></div>
+
+                <div class="mt-4 rounded-xl border border-slate-300 bg-slate-50 p-4 dark:border-slate-700 dark:bg-slate-950">
+                    <h3 class="mb-2 font-semibold">Selected Node</h3>
+
+                    <p class="text-sm text-slate-500 dark:text-slate-400">Path:</p>
+                    <div id="selectedPath" class="mb-3 break-all font-mono text-blue-600 dark:text-blue-400">None</div>
+
+                    <p class="text-sm text-slate-500 dark:text-slate-400">Value:</p>
+                    <pre id="selectedValue" class="break-all font-mono text-green-600 dark:text-green-400 whitespace-pre-wrap">None</pre>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    const input = document.getElementById("jsonInput");
+    const tree = document.getElementById("jsonTree");
+    const errorBox = document.getElementById("errorBox");
+    const selectedPath = document.getElementById("selectedPath");
+    const selectedValue = document.getElementById("selectedValue");
+    const themeToggle = document.getElementById("themeToggle");
+
+    function setTheme(isDark) {
+        document.documentElement.classList.toggle("dark", isDark);
+        localStorage.setItem("jsonViewerTheme", isDark ? "dark" : "light");
+        themeToggle.textContent = isDark ? "Light Mode" : "Dark Mode";
+    }
+
+    setTheme(localStorage.getItem("jsonViewerTheme") === "dark");
+
+    themeToggle.addEventListener("click", function () {
+        setTheme(!document.documentElement.classList.contains("dark"));
+    });
+
+    function getType(value) {
+        if (Array.isArray(value)) return "array";
+        if (value === null) return "null";
+        return typeof value;
+    }
+
+    function escapeHtml(str) {
+        return String(str)
+            .replaceAll("&", "&amp;")
+            .replaceAll("<", "&lt;")
+            .replaceAll(">", "&gt;");
+    }
+
+    function formatPrimitive(value) {
+        const type = getType(value);
+
+        if (type === "string") return `<span class="text-green-600 dark:text-green-400">"${escapeHtml(value)}"</span>`;
+        if (type === "number") return `<span class="text-yellow-600 dark:text-yellow-400">${value}</span>`;
+        if (type === "boolean") return `<span class="text-purple-600 dark:text-purple-400">${value}</span>`;
+        if (type === "null") return `<span class="text-slate-400">null</span>`;
+
+        return escapeHtml(value);
+    }
+
+    function pathToString(path) {
+        if (!path.length) return "$";
+
+        return "$" + path.map(function (part) {
+            return typeof part === "number" ? `[${part}]` : `.${part}`;
+        }).join("");
+    }
+
+    function createNode(key, value, path) {
+        path = path || [];
+
+        const type = getType(value);
+        const wrapper = document.createElement("div");
+        wrapper.className = "ml-4 my-1";
+
+        const row = document.createElement("div");
+        row.className = "cursor-pointer hover:bg-slate-200 dark:hover:bg-slate-800 rounded px-2 py-1 flex items-start gap-1";
+
+        row.addEventListener("click", function (e) {
+            e.stopPropagation();
+
+            selectedPath.textContent = pathToString(path);
+            selectedValue.textContent = JSON.stringify(value, null, 2);
+
+            document.querySelectorAll(".selected-node").forEach(function (el) {
+                el.classList.remove("selected-node", "bg-blue-100", "dark:bg-blue-900");
+            });
+
+            row.classList.add("selected-node", "bg-blue-100", "dark:bg-blue-900");
+        });
+
+        if (type === "object" || type === "array") {
+            const toggle = document.createElement("span");
+            toggle.textContent = "▾";
+            toggle.className = "text-slate-400 w-4 select-none";
+
+            const label = document.createElement("span");
+            label.innerHTML = `
+      ${key !== null ? `<span class="text-blue-600 dark:text-blue-400">"${escapeHtml(key)}"</span>: ` : ""}
+      <span>${type === "array" ? "[" : "{"}</span>
+      <span class="text-slate-400">${type === "array" ? value.length + " items" : Object.keys(value).length + " keys"}</span>
+      <span>${type === "array" ? "]" : "}"}</span>
+    `;
+
+            row.appendChild(toggle);
+            row.appendChild(label);
+            wrapper.appendChild(row);
+
+            const children = document.createElement("div");
+            children.className = "children ml-2 border-l border-slate-300 pl-2 dark:border-slate-700";
+
+            if (type === "array") {
+                value.forEach(function (item, index) {
+                    children.appendChild(createNode(index, item, path.concat(index)));
+                });
+            } else {
+                Object.keys(value).forEach(function (childKey) {
+                    children.appendChild(createNode(childKey, value[childKey], path.concat(childKey)));
+                });
+            }
+
+            wrapper.appendChild(children);
+
+            toggle.addEventListener("click", function (e) {
+                e.stopPropagation();
+
+                const hidden = children.classList.toggle("hidden");
+                toggle.textContent = hidden ? "▸" : "▾";
+            });
+        } else {
+            const spacer = document.createElement("span");
+            spacer.className = "w-4";
+
+            const label = document.createElement("span");
+            label.innerHTML = `
+      ${key !== null ? `<span class="text-blue-600 dark:text-blue-400">"${escapeHtml(key)}"</span>: ` : ""}
+      ${formatPrimitive(value)}
+    `;
+
+            row.appendChild(spacer);
+            row.appendChild(label);
+            wrapper.appendChild(row);
+        }
+
+        return wrapper;
+    }
+
+    function renderJson(data) {
+        tree.innerHTML = "";
+        tree.appendChild(createNode(null, data, []));
+    }
+
+    function formatJson() {
+        errorBox.textContent = "";
+
+        try {
+            const data = JSON.parse(input.value);
+            input.value = JSON.stringify(data, null, 2);
+            renderJson(data);
+        } catch (error) {
+            errorBox.textContent = "Invalid JSON: " + error.message;
+            tree.innerHTML = "";
+        }
+    }
+
+    function expandAll() {
+        document.querySelectorAll(".children").forEach(function (el) {
+            el.classList.remove("hidden");
+        });
+
+        document.querySelectorAll("#jsonTree span").forEach(function (el) {
+            if (el.textContent === "▸") el.textContent = "▾";
+        });
+    }
+
+    function collapseAll() {
+        document.querySelectorAll(".children").forEach(function (el) {
+            el.classList.add("hidden");
+        });
+
+        document.querySelectorAll("#jsonTree span").forEach(function (el) {
+            if (el.textContent === "▾") el.textContent = "▸";
+        });
+    }
+
+    document.getElementById("formatBtn").addEventListener("click", formatJson);
+    document.getElementById("expandAllBtn").addEventListener("click", expandAll);
+    document.getElementById("collapseAllBtn").addEventListener("click", collapseAll);
+    input.addEventListener("input", formatJson);
+</script>
+{{ end }}
