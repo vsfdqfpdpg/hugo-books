@@ -1,0 +1,120 @@
+{{ define "main" }}
+<div class="min-h-screen bg-slate-50 text-slate-900 dark:bg-slate-950 dark:text-slate-100">
+    <div class="mx-auto max-w-5xl px-4 py-10">
+        <div class="mb-8 flex items-center justify-between">
+            <div>
+                <h1 class="text-3xl font-bold">Header Converter</h1>
+                <p class="mt-2 text-slate-600 dark:text-slate-400">
+                    Convert PHP-style headers into Postman Bulk Edit format.
+                </p>
+            </div>
+
+            <button
+                    id="themeBtn"
+                    class="rounded-xl border border-slate-300 px-4 py-2 text-sm dark:border-slate-700"
+            >
+                Toggle Dark
+            </button>
+        </div>
+
+        <div class="grid gap-6 md:grid-cols-2">
+            <div class="rounded-2xl bg-white p-5 shadow dark:bg-slate-900">
+                <label class="mb-2 block font-semibold">Input</label>
+                <label for="input"></label><textarea
+                        id="input"
+                        class="h-96 w-full rounded-xl border border-slate-300 bg-slate-50 p-4 font-mono text-sm outline-none focus:ring-2 focus:ring-blue-500 dark:border-slate-700 dark:bg-slate-950"
+                        placeholder="Paste PHP header array here..."
+                ></textarea>
+
+                <button
+                        id="convertBtn"
+                        class="mt-4 w-full rounded-xl bg-blue-600 px-4 py-3 font-semibold text-white hover:bg-blue-700"
+                >
+                    Convert
+                </button>
+            </div>
+
+            <div class="rounded-2xl bg-white p-5 shadow dark:bg-slate-900">
+                <div class="mb-2 flex items-center justify-between">
+                    <label class="font-semibold">Postman Bulk Edit Output</label>
+                    <button
+                            id="copyBtn"
+                            class="rounded-lg bg-slate-200 px-3 py-1 text-sm hover:bg-slate-300 dark:bg-slate-800 dark:hover:bg-slate-700"
+                    >
+                        Copy
+                    </button>
+                </div>
+
+                <textarea
+                        id="output"
+                        readonly
+                        class="h-96 w-full rounded-xl border border-slate-300 bg-slate-50 p-4 font-mono text-sm outline-none dark:border-slate-700 dark:bg-slate-950"
+                        placeholder="Converted headers will appear here..."
+                ></textarea>
+
+                <p id="status" class="mt-3 text-sm text-green-600 dark:text-green-400"></p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.tailwindcss.com"></script>
+
+<script>
+    tailwind.config = {
+        darkMode: "class"
+    };
+
+    const input = document.getElementById("input");
+    const output = document.getElementById("output");
+    const status = document.getElementById("status");
+
+    const blockedHeaders = new Set([
+        "host",
+        "content-length"
+    ]);
+
+    function convertHeaders() {
+        const text = input.value;
+        const regex = /['"]([^'"]+)['"]\s*=>\s*['"]([^'"]*)['"]/g;
+
+        let match;
+        const lines = [];
+
+        while ((match = regex.exec(text)) !== null) {
+            const key = match[1].trim();
+            const value = match[2].trim();
+
+            if (blockedHeaders.has(key.toLowerCase())) {
+                continue;
+            }
+
+            lines.push(`${key}: ${value}`);
+        }
+
+        output.value = lines.join("\n");
+        status.textContent = lines.length
+            ? `Converted ${lines.length} headers.`
+            : "No valid headers found.";
+    }
+
+    async function copyOutput() {
+        if (!output.value.trim()) {
+            status.textContent = "Nothing to copy.";
+            return;
+        }
+
+        await navigator.clipboard.writeText(output.value);
+        status.textContent = "Copied to clipboard.";
+    }
+
+    document.getElementById("convertBtn").addEventListener("click", convertHeaders);
+    document.getElementById("copyBtn").addEventListener("click", copyOutput);
+
+    input.addEventListener("input", convertHeaders);
+
+    document.getElementById("themeBtn").addEventListener("click", () => {
+        document.documentElement.classList.toggle("dark");
+    });
+</script>
+{{ end }}
