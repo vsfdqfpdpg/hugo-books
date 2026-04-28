@@ -92,6 +92,10 @@
                 continue;
             }
 
+            if(key.toLowerCase().startsWith("cf-")) {
+                continue;
+            }
+
             lines.push(`${key}: ${value}`);
         }
 
