@@ -71,7 +71,10 @@
 
     const blockedHeaders = new Set([
         "host",
-        "content-length"
+        "content-length",
+        "x-forwarded-host",
+        "x-forwarded-for",
+        "x-forwarded-proto"
     ]);
 
     function convertHeaders() {
